@@ -52,9 +52,8 @@ This script will allow you to perform various user management tasks. It was orig
   - Admin Check
     - Checks to see if the user running the script is a memember of the admin group
   - Root Check
-    - Checks to see if the user is running the script as root
-3
-  - Reset Password (Standard Only)
+    - Checks to see if the user is running the script as root
+   
 **This script requires various commands to be ran as root.**
 
 The following items will be added / completed in the near future and this will be updated to reflect those changes
