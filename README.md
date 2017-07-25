@@ -9,7 +9,9 @@ sudo sh CreateUserAccount.sh
 ## Overview
 This script will allow you to perform various user management tasks. It was originally created to allow the customization I needed that the [CreateUserPKG](https://github.com/MagerValp/CreateUserPkg) did not have. Since the CreateUserPKG is now no longer being maintained, I decided to add to the script I had created and hope that it helps others as much as it has helped me.
 
-In it's current state (as of July 25th 2017), this script will do the following tasks:
+------------------------------------------------------------------------------------------------------------------------------
+
+### In it's current state (as of July 25th 2017), this script will do the following tasks:
 
 **Main Menu**
    - Create a Standard User Account
@@ -23,6 +25,8 @@ In it's current state (as of July 25th 2017), this script will do the following 
    - Disable Account *[Standard Account Only]*
    - Enable Account *[Standard Account Only]*
    - Reset Account Password *[Standard Account Only]*
+   
+------------------------------------------------------------------------------------------------------------------------------
 
 #### User Creation Fields:
   - Username
