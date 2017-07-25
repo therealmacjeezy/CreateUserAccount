@@ -20,9 +20,10 @@
 # GNU General Public License at <http://www.gnu.org/licenses/> for
 # more details.
 ############################### Usage #################################
-# createuser.sh [-h|--help]
+# sudo sh CreateUserAccount.sh
 ########################## Revision History ###########################
-# 07-24-2017	Added Testing for password reset function
+# 07-24-2017	Added Disable / Enable and Password Change functions 
+# 		to the Account Management section.
 # 07-06-2017	Created
 #######################################################################
 
@@ -124,74 +125,149 @@ ${boldon}Useage${reset}
 	${blinkon} > Coming Soon...${reset}"	
 }
 
-accountManagement() {
-errorCount="0"
-validOption=false
-clear
-scriptTitle
-printf "${boldon}Account Management${reset}\n"
-	printf "${boldon}Select an option..${boldoff}\n"
-	echo "
-${boldon}1)${boldoff} Disable User ${underlineon}Coming Soon..${underlineoff}
-${boldon}2)${boldoff} Enable User ${underlineon}Coming Soon..${underlineoff}
-${boldon}3)${boldoff} Change User Password ${underlineon}Coming Soon..${underlineoff}
-${boldon}b)${boldoff} Go Back
-${boldon}q)${boldoff} Quit
-"
+resetPassword() {
+	printf "Enter the user you want to change the password for: "
+	read setUser
 
-# Function that contains the older version of the menu in the event it needs to be used or recalled upon during editing.
-previousMenu() {
-echo "
-${boldon}1)${boldoff} Disable User ${underlineon}Coming Soon..${underlineoff}
-${boldon}2)${boldoff} Change User Password ${italicon}(Non FileVault User)${italicoff} ${underlineon}Coming Soon..${underlineoff}
-${boldon}3)${boldoff} Change User Password ${italicon}(FileVault User)${italicoff} ${underlineon}Coming Soon..${underlineoff}
-${boldon}b)${boldoff} Go Back
-${boldon}q)${boldoff} Quit
-"
+	if [[ ! -z "$setUser" ]];
+		then
+			findUsers=`ls /Users | grep -w "$setUser"`
+	else
+			echo "Enter a username"
+	fi
+
+	if [[ -z "$findUsers" ]];
+		then
+			echo "Unable to find the username $setUser"
+	else
+			echo "$setUser is a valid account"
+			foundUser=true
+	fi
+
+	adminCheck() {
+		if groups $setUser | grep -q -w admin;
+			then
+				echo "Error Found.."
+				exit 1
+				adminUser=true
+		else
+				adminUser=false
+		fi
+	} 
+
+	if [[ "$foundUser" == "true" ]];
+		then
+			adminCheck
+	fi
+
+	if [[ "$adminUser" == "false" ]];
+		then
+			getPW
+			sudo dscl . passwd /Users/$setUser "$userPass"
+	fi
 }
 
-while [[ "$validOption" == "false" ]]; do
-	printf "${boldon}Selection${blinkon}: ${reset}"
-	read managementOption
-	tput cuu1; tput cr; tput el;
-		case $managementOption in
-			1)
-				printf "${boldon}Disable User Account${boldoff}\n"
-				sleep 2
-				tput cuu1; tput cr; tput el;
-				;;
-			2)
-				printf "${boldon}Enable User Account${boldoff}\n"
-				sleep 2
-				tput cuu1; tput cr; tput el;
-				;;
-			3) 
-				printf "${boldon}Change User Password${boldoff}\n"
-				sleep 2
-				tput cuu1; tput cr; tput el;
-				;;
-			b | B)
-				clear
-				validOption=true
-				;;
+disableUser() {
+	printf "Enter the user you want to disable: "
+read setUser
 
-			q | Q)
-				exit 0
-				;;
+if [[ ! -z "$setUser" ]];
+	then
+		findUsers=`ls /Users | grep -w "$setUser"`
+else
+		echo "Enter a username"
+fi
 
-			*)
-				printf "Invalid Entry.. please select again\n"
+if [[ -z "$findUsers" ]];
+	then
+		echo "Unable to find the username $setUser"
+else
+		#echo "$setUser is a valid account"
+		foundUser=true
+fi
+
+	adminCheck() {
+		if groups $setUser | grep -q -w admin;
+			then
+				echo "Error Found.."
+				exit 1
+				adminUser=true
+		else
+				adminUser=false
+		fi
+	} 
+
+if [[ "$foundUser" == "true" ]];
+	then
+		adminCheck
+fi
+
+if [[ "$adminUser" == "false" ]];
+	then
+		#sudo dscl . -delete /Users/"$setUser" AuthenticationAuthority
+		sudo dscl . -append /Users/"$setUser" AuthenticationAuthority ";DisabledUser;"
+		disableUser="done"
+		checkUser=`dscl . read /Users/"$setUser" AuthenticationAuthority | grep "DisabledUser"`
+fi
+
+if [[ "$disableUser" == "done" ]];
+	then
+		if [[ -z "$checkUser" ]];
+			then
 				sleep 2
-				tput cuu1; tput cr; tput el;
-				let "errorCount++"
-				;;	
-		esac
-	if [[ "$errorCount" == "3" ]];
-		then
-			printf "Max Amount of errors allowed. Exiting..\n"
-			exit 1
-	fi
-done				
+				echo "Error Found: User $setUser not disabled."
+		else
+				#echo "$setUser has been disabled"
+				sleep 2
+		fi
+fi
+}
+
+enableUser() {
+	printf "Enter the user you want to enable: "
+read setUser
+
+if [[ ! -z "$setUser" ]];
+	then
+		findUsers=`ls /Users | grep -w "$setUser"`
+else
+		echo "Enter a username"
+fi
+
+if [[ -z "$findUsers" ]];
+	then
+		echo "Unable to find the username $setUser"
+else
+		#echo "$setUser is a valid account"
+		foundUser=true
+fi
+
+	adminCheck() {
+		if groups $setUser | grep -q -w admin;
+			then
+				echo "Error Found.."
+				exit 1
+				adminUser=true
+		else
+				adminUser=false
+		fi
+	} 
+
+if [[ "$foundUser" == "true" ]];
+	then
+		adminCheck
+fi
+
+if [[ "$adminUser" == "false" ]];
+	then
+		#sudo dscl . -delete /Users/"$setUser" AuthenticationAuthority
+		sudo dscl . -create /Users/"$setUser" AuthenticationAuthority
+		#echo "$setUser has been enabled."
+		sleep 1
+		#checkUser=`sudo dscl . read /Users/"$setUser" AuthenticationAuthority | grep "DisabledUser"`
+fi
+
+sleep 2
 }
 
 #### Username ####
@@ -704,6 +780,76 @@ while [[ "$verifiedUser" == "false" ]]; do
 				exit 1
 		fi
 done
+}
+
+accountManagement() {
+errorCount="0"
+validOption=false
+clear
+scriptTitle
+printf "${boldon}Account Management${reset}\n"
+	printf "${boldon}Select an option..${boldoff}\n"
+	echo "
+${boldon}1)${boldoff} Disable User
+${boldon}2)${boldoff} Enable User
+${boldon}3)${boldoff} Change User Password
+${boldon}b)${boldoff} Go Back
+${boldon}q)${boldoff} Quit
+"
+
+while [[ "$validOption" == "false" ]]; do
+	printf "${boldon}Selection${blinkon}: ${reset}"
+	read managementOption
+	tput cuu1; tput cr; tput el;
+		case $managementOption in
+			1)
+				clear
+				scriptTitle
+				printf "${boldon}Disable User Account${boldoff}\n"
+				disableUser
+				echo "$setUser has been disabled."
+				sleep 2
+				validOption=true
+				;;
+			2)
+				clear
+				scriptTitle
+				printf "${boldon}Enable User Account${boldoff}\n"
+				enableUser
+				echo "$setUser has been enabled."
+				sleep 2
+				validOption=true
+				;;
+			3) 
+				clear
+				scriptTitle
+				printf "${boldon}Change User Password${boldoff}\n"
+				resetPassword
+				echo "The password for $setUser has been reset"
+				validOption=true
+				;;
+			b | B)
+				clear
+				validOption=true
+				;;
+
+			q | Q)
+				exit 0
+				;;
+
+			*)
+				printf "Invalid Entry.. please select again\n"
+				sleep 2
+				tput cuu1; tput cr; tput el;
+				let "errorCount++"
+				;;	
+		esac
+	if [[ "$errorCount" == "3" ]];
+		then
+			printf "Max Amount of errors allowed. Exiting..\n"
+			exit 1
+	fi
+done				
 }
 
 standardUser() {
