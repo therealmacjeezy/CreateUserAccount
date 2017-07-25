@@ -22,7 +22,8 @@
 ############################### Usage #################################
 # createuser.sh [-h|--help]
 ########################## Revision History ###########################
-# 07-06-2017  Created
+# 07-24-2017	Added Testing for password reset function
+# 07-06-2017	Created
 #######################################################################
 
 ########################### Text Formatting ###########################
@@ -132,11 +133,23 @@ printf "${boldon}Account Management${reset}\n"
 	printf "${boldon}Select an option..${boldoff}\n"
 	echo "
 ${boldon}1)${boldoff} Disable User ${underlineon}Coming Soon..${underlineoff}
+${boldon}2)${boldoff} Enable User ${underlineon}Coming Soon..${underlineoff}
+${boldon}3)${boldoff} Change User Password ${underlineon}Coming Soon..${underlineoff}
+${boldon}b)${boldoff} Go Back
+${boldon}q)${boldoff} Quit
+"
+
+# Function that contains the older version of the menu in the event it needs to be used or recalled upon during editing.
+previousMenu() {
+echo "
+${boldon}1)${boldoff} Disable User ${underlineon}Coming Soon..${underlineoff}
 ${boldon}2)${boldoff} Change User Password ${italicon}(Non FileVault User)${italicoff} ${underlineon}Coming Soon..${underlineoff}
 ${boldon}3)${boldoff} Change User Password ${italicon}(FileVault User)${italicoff} ${underlineon}Coming Soon..${underlineoff}
 ${boldon}b)${boldoff} Go Back
 ${boldon}q)${boldoff} Quit
 "
+}
+
 while [[ "$validOption" == "false" ]]; do
 	printf "${boldon}Selection${blinkon}: ${reset}"
 	read managementOption
@@ -147,18 +160,16 @@ while [[ "$validOption" == "false" ]]; do
 				sleep 2
 				tput cuu1; tput cr; tput el;
 				;;
-			2) 
-				printf "${boldon}Change User Password${boldoff}${italicon}(Non FileVault User)${italicoff}\n"
+			2)
+				printf "${boldon}Enable User Account${boldoff}\n"
 				sleep 2
 				tput cuu1; tput cr; tput el;
 				;;
-
 			3) 
-				printf "${boldon}Change User Password${boldoff}${italicon}(FileVault User)${italicoff}\n"
+				printf "${boldon}Change User Password${boldoff}\n"
 				sleep 2
 				tput cuu1; tput cr; tput el;
 				;;
-
 			b | B)
 				clear
 				validOption=true
