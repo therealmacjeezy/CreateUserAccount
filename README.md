@@ -3,6 +3,9 @@ A user account creation and management project
 
 > README updated on July 24th 2017
 
+## Usage
+sudo sh CreateUserAccount.sh
+
 ## Overview
 This script will allow you to perform various user management tasks. It was originally created to allow the customization I needed that the [CreateUserPKG](https://github.com/MagerValp/CreateUserPkg) did not have. Since the CreateUserPKG is now no longer being maintained, I decided to add to the script I had created and hope that it helps others as much as it has helped me.
 
@@ -39,8 +42,11 @@ Current Script Validations:
     - Checks to see if the user running the script is a memember of the admin group
   - Root Check
     - Checks to see if the user is running the script as root
-  
+
+**This script requires various commands to be ran as root.
+
 The following items will be added / completed in the near future and this will be updated to reflect those changes
+  - [ ] A more detailed useage section (Function inside of the script)
   - [ ] FileVault User Placeholder (aka User Shell - no login)
   - Account Management
     - [ ] User Password Reset
