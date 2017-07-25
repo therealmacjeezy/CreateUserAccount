@@ -4,7 +4,9 @@ A user account creation and management project
 > README updated on July 25th 2017
 
 ## Usage
+```
 sudo sh CreateUserAccount.sh
+```
 
 ## Overview
 This script will allow you to perform various user management tasks. It was originally created to allow the customization I needed that the [CreateUserPKG](https://github.com/MagerValp/CreateUserPkg) did not have. Since the CreateUserPKG is now no longer being maintained, I decided to add to the script I had created and hope that it helps others as much as it has helped me.
