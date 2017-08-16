@@ -14,9 +14,9 @@ This script will allow you to perform various user management tasks. It was orig
 
 ------------------------------------------------------------------------------------------------------------------------------
 
-**For a detailed outline of all the changes and feature additions, please read the Change Log for Version 1.1**
+**For a detailed outline of all the changes and feature additions, please read the Change Log for Version 1.2**
 
-### In it's current state (as of August 11th 2017 - version 1.1), this script will do the following tasks:
+### In it's current state (as of August 16th 2017 - version 1.2), this script will do the following tasks:
 
 **Options**
   - -a - Administrator Management Mode
@@ -26,7 +26,7 @@ This script will allow you to perform various user management tasks. It was orig
 **Main Menu**
    - Create a Standard User Account
      - Located in the /Users directory with a UID above 500
-   - Create a Sharing Only Account
+   - Create a Sharing Only Account *[added in v1.2]*
    - Create a Admin User Account
      - Non Hidden Account
       - Located in the /Users directory with a UID above 500
@@ -39,7 +39,7 @@ This script will allow you to perform various user management tasks. It was orig
    - Enable Standard Account
    - Reset Standard Account Password
    - Delete Standard Account
-   - Delete Sharing Only Account
+   - Delete Sharing Only Account *[added in v1.2]*
    - Disable Admin Account *[-a option required]*
    - Enable Admin Account *[-a option required]*
    - Reset Admin Account Password *[-a option required]*
