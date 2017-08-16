@@ -24,7 +24,7 @@
 ############################### Usage #################################
 # sudo createuser.sh [-a | -h | -c]
 ########################## Revision History ###########################
-# 08-12-2017	Added an option to create and delete a Sharing Only
+# 08-16-2017	Added an option to create and delete a Sharing Only
 #				account (Version 1.2)
 # 08-11-2017	Custom pictures can now be used when the package option
 #				is selected. Added an option to exit the script after
