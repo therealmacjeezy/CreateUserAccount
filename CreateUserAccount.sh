@@ -6,7 +6,7 @@
 # GitHub - github.com/therealmacjeezy    
 # JAMFnation - therealmacjeezy
 # Created: July 6 2017
-# Updated: August 11 2017			 
+# Updated: August 16 2017			 
 ##########################################
 
 ############################# Licensing ###############################
@@ -24,6 +24,8 @@
 ############################### Usage #################################
 # sudo createuser.sh [-a | -h | -c]
 ########################## Revision History ###########################
+# 08-12-2017	Added an option to create and delete a Sharing Only
+#				account (Version 1.2)
 # 08-11-2017	Custom pictures can now be used when the package option
 #				is selected. Added an option to exit the script after
 #				the package is created, instead of automatically 
@@ -129,6 +131,7 @@ ${boldon}Main Menu Options: ${boldoff}
 		     (${boldon}Location:${boldoff} /var/username/ | ${boldon}UID:${boldoff} below 500)
 		   - Non Hidden Account
 		     (${boldon}Location:${boldoff} /Users/username/ | ${boldon}UID:${boldoff} above 500)
+	- Create Sharing Only Account [new]
 	- Account Management 
 
 ${boldon}Account Management Options: ${boldoff}
@@ -136,6 +139,7 @@ ${boldon}Account Management Options: ${boldoff}
 	- Enable Standard User Account
 	- Reset Standard User Password
 	- Delete Standard User Account
+	- Delete Sharing Only Account [new]
 	- Admin: Disable Account ${italicon}${TXTblue}(-a Required)${reset}
 	- Admin: Enable Account ${italicon}${TXTblue}(-a Required)${reset}
 	- Admin: Reset Password ${italicon}${TXTblue}(-a Required)${reset}
@@ -257,11 +261,149 @@ createPKG() {
 				makeUser
 				;;
 			N|n)
-				break
+				#break
 				;;
 		esac
 }
 ## End Package Option
+getSharing() {
+# Get list of all user accounts with the system accounts filtered out	
+listUsers=$(dscl . -list /Users | grep -v "^_.*" | awk '{print $1}')
+
+# Count the number of user accounts
+countUsers=$(echo "$listUsers" | wc -l)
+
+# Create starting count for the user array
+lineNumber="1"
+
+# Creates an item in the array for every user. 
+for i in $(seq 1 "$countUsers"); do
+	# Uses the numbering variable set above with the head command to print each user line by line
+	listUsers=$(dscl . -list /Users | grep -v "^_.*" | awk '{print $1}' | head -"$lineNumber" | tail -1)
+	# Checks to see if the account is able to login or if their shell is set to /usr/bin/false
+	userShell=$(dscl . -read /Users/"$listUsers" NFSHomeDirectory | grep -w "/dev/null")
+		# If the account has the default shell to allow logins, the user is added to the array
+		if [[ ! -z  "$userShell" ]];
+			then
+				userList+=("$listUsers")
+		fi
+	# Increases the numbering variable
+	let "lineNumber++"
+done
+
+# A for loop that will check to see if the users in the array created above are part of the admin group. If they aren't an admin, they will get added to the standard users array.
+for i in "${userList[@]}"; do
+	# Variable to check to see if the user is a member of the admin group
+	adminCheck=$(dsmemberutil checkmembership -U "$i" -G admin | grep "is a member")
+		# If the variable above is empty, that means the user is not a memeber of the admin group and gets added to the standard users array
+		if [[ -z "$adminCheck" ]];
+			then
+				sharingUser+=("$i")
+		fi
+done
+
+# Adds an option to quit to the end of the standard users array
+sharingUser+=("QUIT")
+
+# Creates a starting count for error checking
+errorCount="0"
+
+pickUser() {
+		# Function to allow the user to verify the user they have selected and allows them to pick another one if it's not correct
+		verifyUser() {
+			clear
+			scriptTitle
+			printf "You have selected the user ${boldon}$usr ${boldoff}..\nIs this correct (y/n)? "
+			read useOption
+				case $useOption in
+					Y|y)
+						# Sets the variable that is used to verify the user has been verifed and set to be used in the next part of the script
+						selectionComplete="true"
+						# Sets the variable that is used in the until loop to skip the user selection menu
+						userPicked="yes"
+						clear
+						break
+						;;
+					N|n)
+						clear
+						scriptTitle
+						# Sets the variable that will bring the user back to the user selection menu to pick a different user
+						userPicked="no"
+							# Increases the variable for error checking
+							let "errorCount++"
+								# Exits the script if the max number of errors has been reached
+								if [[ "$errorCount" == "3" ]];
+									then
+										echo "Max number of attempts reached. Exiting"
+										sleep .5
+										exit 1
+								fi
+						break
+						;;
+					*)
+						echo "Error Found: Invalid Entry"
+						sleep .5
+						tput cuu1; tput cr; tput el;
+						# Increases the variable for error checking
+						let "errorCount++"
+							# Exits the script if the max number of errors has been reached
+							if [[ "$errorCount" == "3" ]];
+								then
+									echo "Max number of errors reached. Exiting"
+									sleep .5
+									exit 1
+							fi
+						;;
+				esac
+			}
+
+	PS3="Please select a user: "
+	until [[ "$userPicked" == "yes" ]]; do
+		select usr in "${sharingUser[@]}"; do
+		tput cuu1; tput cr; tput el;
+			if [[ -z "$usr" ]];
+				then
+					echo "Error Found: Invalid Entry"
+					sleep .5
+					tput cuu1; tput cr; tput el;
+					# Increases the variable for error checking
+					let "errorCount++"
+						# Exits the script if the max number of errors has been reached
+						if [[ "$errorCount" == "3" ]];
+							then
+								echo "Max number of errors reached. Exiting"
+								sleep .5
+								exit 1
+						fi
+			elif [[ "$usr" == "QUIT" ]];
+				then
+					echo "Exiting.."
+					sleep .5
+					clear
+					exit 0
+			else
+					# Sets the variable that is used in the until loop to skip the user selection menu
+					userPicked="yes"
+					tput cuu1; tput cr; tput el;
+					# Calls the function to verify the user that has been selected
+					verifyUser
+			fi
+		done
+	done
+}
+
+# A while loop that will call the pickUser function if it sees the variable for selectionComplete isn't set to true
+while [[ "$selectionComplete" != "true" ]]; do
+		pickUser
+done
+
+# If statement that sets the setUser variable with the user that has been selected above
+if [[ "$selectionComplete" == true ]];
+	then
+		setUser="$usr"
+fi
+}
+
 
 getStandard() {
 # Get list of all user accounts with the system accounts filtered out	
@@ -751,7 +893,10 @@ if [[ ! -z "$userCheck" ]];
 					# Deletes the user from dscl
 					sudo dscl . -delete /Users/"$setUser"
 					# Deletes the user's home directory
-					sudo rm -rf /Users/"$setUser"/
+					if [[ -z "$sharingAccount" ]];
+						then
+							sudo rm -rf /Users/"$setUser"/
+					fi
 					# Sets the variable to verify the actions performed above to true
 					verifyAction=true
 					;;
@@ -1704,6 +1849,18 @@ while [[ "$validOption" == "false" ]]; do
 					break
 					gracefulExit=true
 					;;
+			"Delete Sharing Only Account") 
+					clear
+					scriptTitle
+					printf "${boldon}Delete Sharing Only Account${boldoff}\n"
+					getSharing
+					sharingAccount=true
+					deleteUser
+					echo "The sharing only account $setUser has been deleted"
+					validOption=true
+					break
+					gracefulExit=true
+					;;
 			"Admin: Delete Account") 
 					clear
 					scriptTitle
@@ -1771,6 +1928,49 @@ standardUser() {
 	getUsername
 
 	homeDir="/Users/$userName"
+
+	# First Name
+	fName
+
+	# Last Name
+	lName
+
+	# Creates Real Name for user
+	userRealName="$firstName $lastName"
+
+	# Password
+	getPW
+
+	# User Icon
+	selectUserPicture
+
+	# Verify User Info
+	previewDSCLUser
+
+}
+
+sharingUser() {
+	clear
+	scriptTitle
+	# Set Standard Shell
+	userShell="/usr/bin/false"
+
+	# Get Standard UID
+	makeUID="$makeUID500"
+
+	# Get Standard GroupID
+	getID="20"
+
+	# Sets variable to reflect standard user
+	adminUser=`printf "No (Sharing Only Account)\n"`
+
+	printf "${boldon}Sharing Only Account Setup${reset}\n"
+	printf "\n"
+
+	# Username
+	getUsername
+
+	homeDir="/dev/null"
 
 	# First Name
 	fName
@@ -1926,8 +2126,8 @@ do
 			adminUser
 			if [[ "$adminLoggedIn" == "true" ]];
 				then
-					mainMenu=("Create Standard Account" "Create Admin Account" "Account Management" "Quit")
-					managementMenu=("Disable Standard User Account" "Enable Standard User Account" "Reset Standard User Password" "Delete Standard User Account" "Admin: Disable Account" "Admin: Enable Account" "Admin: Reset Password" "Admin: Delete Account" "Go Back" "QUIT")
+					mainMenu=("Create Standard Account" "Create Admin Account" "Create Sharing Only Account" "Account Management" "QUIT")
+					managementMenu=("Disable Standard User Account" "Enable Standard User Account" "Reset Standard User Password" "Delete Standard User Account" "Delete Sharing Only Account" "Admin: Disable Account" "Admin: Enable Account" "Admin: Reset Password" "Admin: Delete Account" "Go Back" "QUIT")
 					elevatedSession="${TXTblue}${boldon}Administrator Mode ${reset}"
 					adminOption=true
 					clear
@@ -1962,8 +2162,8 @@ done
 if [[ -z "$1" ]];
 	then
 		# Setting PS3 Prompt
-		mainMenu=("Create Standard Account" "Create Admin Account" "Account Management" "QUIT")
-		managementMenu=("Disable Standard User Account" "Enable Standard User Account" "Reset Standard User Password" "Delete Standard User Account" "Go Back" "QUIT")
+		mainMenu=("Create Standard Account" "Create Admin Account" "Create Sharing Only Account" "Account Management" "QUIT")
+		managementMenu=("Disable Standard User Account" "Enable Standard User Account" "Reset Standard User Password" "Delete Standard User Account" "Delete Sharing Only Account" "Go Back" "QUIT")
 		adminOption=false
 		needAdmin=true
 		clear
@@ -1991,7 +2191,7 @@ mainOptions() {
 			standardUser
 			createPKG
 			gracefulExit=true
-			showCopyright
+			break
 			;;
 		"Create Admin Account")
 			clear
@@ -2027,6 +2227,15 @@ mainOptions() {
 								;;
 					esac
 				done
+			break
+			;;
+		"Create Sharing Only Account")
+			clear
+			scriptTitle
+			echo "${boldon}Create Sharing Only Account${boldoff}"
+			sharingUser
+			createPKG
+			gracefulExit=true
 			break
 			;;
 		"Account Management")
