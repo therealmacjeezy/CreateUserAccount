@@ -1,8 +1,8 @@
 # CreateUserAccount
 A user account creation and management project
 
-> README updated on August 11th 2017
-> Current Version: 1.1
+> README updated on August 16th 2017
+> Current Version: 1.2
 
 ## Usage
 ```
@@ -26,17 +26,20 @@ This script will allow you to perform various user management tasks. It was orig
 **Main Menu**
    - Create a Standard User Account
      - Located in the /Users directory with a UID above 500
+   - Create a Sharing Only Account
    - Create a Admin User Account
      - Non Hidden Account
       - Located in the /Users directory with a UID above 500
     - Hidden Account
       - Located in the /var directory with a UID below 500 to allow for the account to be hidden from the User & Groups pane and the /Users directory.
+  
      
 **Account Management**
    - Disable Standard Account
    - Enable Standard Account
    - Reset Standard Account Password
    - Delete Standard Account
+   - Delete Sharing Only Account
    - Disable Admin Account *[-a option required]*
    - Enable Admin Account *[-a option required]*
    - Reset Admin Account Password *[-a option required]*
@@ -88,7 +91,7 @@ The following items will be added / completed in the near future and this will b
   - [ ] Create a GUI for the script to allow for easier useage
   - [x] Create the option to allow the user to export to a package to allow for duplication *[added 8/11]*
   - [ ] Create the option to add items to the user's home directory to further customize the account
-  - [ ] Sharing Only / Shell Account Option
+  - [x] Sharing Only / Shell Account Option *[added 8/16]*
   - [ ] Multiple Account Creation Option
   
 If you would like to help with an area of the script or any of the future plans, send me an email (josh[at]macjeezy.com) or submit a request on this repo! Also, if you have any feedback or comments about this project, I would love to hear them!
